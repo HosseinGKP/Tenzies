@@ -6,6 +6,9 @@ import { nanoid } from "nanoid"
 function App(){
   
   const [dice, setDice] = useState(generateAllNewDice())
+  const isWon = dice.every(die =>
+    die.value === dice[0].value && die.isHeld
+  )
   
   function generateAllNewDice(){
     return new Array(10)
@@ -19,17 +22,18 @@ function App(){
   }
   
   function rollDice(){
-    setDice(generateAllNewDice())
+    setDice(prevDice => prevDice.map(dieObj =>
+      dieObj.isHeld ? dieObj:
+        {...dieObj, value:  Math.ceil(Math.random() * 6)}
+    ))
   }
 
   function hold(id){
-    setDice(prevDice => {
-      return prevDice.map((dieObj) => {
-        return dieObj.id === id ? 
-          {...dieObj, isHeld : !dieObj.isHeld} :
-          dieObj
-      })
-    })
+    setDice(prevDice => prevDice.map((dieObj) => 
+      dieObj.id === id ? 
+        {...dieObj, isHeld : !dieObj.isHeld} :
+        dieObj
+    ))
   }
 
   const diceElement = dice.map(dieObj =>
@@ -47,11 +51,16 @@ function App(){
     <>
       <main>
 
+        <h1 className='title-h1'>Tenzies</h1>
+        <p className='instructions'>Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
         <div className='dice-container'>
         {diceElement}
         </div>
 
-        <button onClick={rollDice} className='roll-button'>Roll</button>
+        <button onClick={rollDice} className='roll-button'>{
+        isWon ? "New Game": "Roll"
+        }</button>
+      
       </main>
     </>
   )

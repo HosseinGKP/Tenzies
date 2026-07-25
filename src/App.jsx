@@ -66,7 +66,7 @@ function App(){
     <>
       <main>
 
-        <div aria-live="polite">
+        <div aria-live="polite" className='sr-only'>
             {isWon && <p className='sr-only'>Congratulations! You won! press "New Game" to play agai man.</p>}
         </div>
         <h1 className='title-h1'>Tenzies</h1>

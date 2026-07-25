@@ -1,15 +1,25 @@
 import './styles/App.css'
 import Die from "./components/Die"
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { nanoid } from "nanoid"
+import { useWindowSize } from 'react-use'
+import Confetti from 'react-confetti'
 
 function App(){
   
-  const [dice, setDice] = useState(generateAllNewDice())
+  const [dice, setDice] = useState(() => generateAllNewDice())
   const isWon = dice.every(die =>
     die.value === dice[0].value && die.isHeld
   )
+  const { width, height } = useWindowSize()
+  const rollFocusRef = useRef(null)
   
+  useEffect(() => {
+    if(isWon){
+      rollFocusRef.current.focus()
+    }
+  },[isWon])
+
   function generateAllNewDice(){
     return new Array(10)
     .fill(0)
@@ -22,10 +32,14 @@ function App(){
   }
   
   function rollDice(){
-    setDice(prevDice => prevDice.map(dieObj =>
-      dieObj.isHeld ? dieObj:
-        {...dieObj, value:  Math.ceil(Math.random() * 6)}
-    ))
+    if (!isWon){
+      setDice(prevDice => prevDice.map(dieObj =>
+        dieObj.isHeld ? dieObj:
+          {...dieObj, value:  Math.ceil(Math.random() * 6)}
+      ))
+    }else{
+      setDice(generateAllNewDice())
+    }
   }
 
   function hold(id){
@@ -35,6 +49,7 @@ function App(){
         dieObj
     ))
   }
+``
 
   const diceElement = dice.map(dieObj =>
     <Die
@@ -51,16 +66,27 @@ function App(){
     <>
       <main>
 
+        <div aria-live="polite">
+            {isWon && <p className='sr-only'>Congratulations! You won! press "New Game" to play agai man.</p>}
+        </div>
         <h1 className='title-h1'>Tenzies</h1>
         <p className='instructions'>Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
         <div className='dice-container'>
         {diceElement}
         </div>
 
-        <button onClick={rollDice} className='roll-button'>{
-        isWon ? "New Game": "Roll"
-        }</button>
-      
+        <button
+          ref={rollFocusRef}
+          onClick={rollDice} className='roll-button'>
+            {isWon ? "New Game": "Roll"}
+        </button>
+
+        {isWon ? <Confetti 
+          width={width}
+          height={height}
+        />: null}
+
+
       </main>
     </>
   )

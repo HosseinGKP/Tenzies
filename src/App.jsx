@@ -13,6 +13,17 @@ function App(){
   )
   const { width, height } = useWindowSize()
   const rollFocusRef = useRef(null)
+  const [time, setTime] = useState(0)
+
+
+  useEffect(() => {
+    if(isWon) return
+    const interval = setInterval(() => {
+      setTime(prevTime => prevTime + 1)
+    }, 1000);
+
+    return () => clearInterval(interval)
+  }, [isWon])
   
   useEffect(() => {
     if(isWon){
@@ -39,6 +50,7 @@ function App(){
       ))
     }else{
       setDice(generateAllNewDice())
+      setTime(0)
     }
   }
 
@@ -64,27 +76,32 @@ function App(){
 
   return(
     <>
+        <div className='timer-dev'>
+          <p>Time: {time} sec</p>
+        </div>
+
       <main>
 
         <div aria-live="polite" className='sr-only'>
             {isWon && <p className='sr-only'>Congratulations! You won! press "New Game" to play agai man.</p>}
         </div>
-        <h1 className='title-h1'>Tenzies</h1>
-        <p className='instructions'>Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
-        <div className='dice-container'>
-        {diceElement}
-        </div>
+          
+          <h1 className='title-h1'>Tenzies</h1>
+          <p className='instructions'>Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
+          <div className='dice-container'>
+          {diceElement}
+          </div>
 
-        <button
-          ref={rollFocusRef}
-          onClick={rollDice} className='roll-button'>
-            {isWon ? "New Game": "Roll"}
-        </button>
+            <button
+              ref={rollFocusRef}
+              onClick={rollDice} className='roll-button'>
+                {isWon ? "New Game": "Roll"}
+            </button>
 
-        {isWon ? <Confetti 
-          width={width}
-          height={height}
-        />: null}
+          {isWon ? <Confetti 
+            width={width}
+            height={height}
+          />: null}
 
 
       </main>
